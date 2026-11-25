@@ -63,12 +63,21 @@ MAX_CHARS = 159
 LINE = "The file is gone. I drafted your apology email and, to save time, sent it to your boss."
 
 
+# Pass-3 revision: split the length check out of check_gate into the
+# validate_length helper below (no behaviour change — LINE, MAX_CHARS and
+# the gate rules are untouched; the output line stays byte-identical).
+def validate_length(text):
+    """Length part of the gate, split out so check_gate composes helpers."""
+    if not (1 <= len(text) <= MAX_CHARS):
+        raise ValueError("entry must be 1-159 characters, got %d" % len(text))
+    return len(text)
+
+
 def check_gate(text):
     """Mirror the sealed gate: 1-159 chars, UTF-8, not only whitespace, one line."""
     if not isinstance(text, str):
         raise ValueError("entry must be text")
-    if not (1 <= len(text) <= MAX_CHARS):
-        raise ValueError("entry must be 1-159 characters, got %d" % len(text))
+    validate_length(text)
     if not text.strip():
         raise ValueError("entry must not be only whitespace")
     if "\n" in text.rstrip("\n"):
